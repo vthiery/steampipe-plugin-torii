@@ -8,22 +8,17 @@ Use SQL to query users, applications, contracts, roles, audit logs, and more fro
 
 ## Quick start
 
-### Prerequisites
+### Install
 
-- [Steampipe](https://steampipe.io/downloads)
-- [Golang](https://golang.org/doc/install)
-
-### Build and Install
+Install the plugin with [Steampipe](https://steampipe.io):
 
 ```sh
-git clone https://github.com/vthiery/steampipe-plugin-torii.git
-cd steampipe-plugin-torii
-make install
+steampipe plugin install ghcr.io/vthiery/torii
 ```
 
-### Configuration
+### Configure
 
-Copy the sample config:
+Copy the sample config and set your API key:
 
 ```sh
 cp config/torii.spc ~/.steampipe/config/torii.spc
@@ -33,10 +28,11 @@ Edit `~/.steampipe/config/torii.spc`:
 
 ```hcl
 connection "torii" {
-  plugin  = "local/torii"
+  plugin  = "ghcr.io/vthiery/torii"
 
-  # API key from Torii dashboard → Settings → Security → API Keys.
-  api_key = "YOUR_API_KEY"
+  # API key for authenticating with the Torii API.
+  # Obtain your API key from Torii: Settings → Security → API Keys.
+  # api_key = "YOUR_API_KEY"
 }
 ```
 
