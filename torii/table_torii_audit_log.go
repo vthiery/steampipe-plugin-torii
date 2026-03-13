@@ -20,6 +20,7 @@ type AuditRequestDetails struct {
 
 // AuditLog represents a Torii admin audit log entry.
 type AuditLog struct {
+	Entity               string                 `json:"entity"`
 	PerformedBy          int                    `json:"performedBy"`
 	PerformedByFirstName string                 `json:"performedByFirstName"`
 	PerformedByLastName  string                 `json:"performedByLastName"`
@@ -47,10 +48,11 @@ func tableToriiAuditLog() *plugin.Table {
 		List: &plugin.ListConfig{
 			Hydrate: listAuditLogs,
 			KeyColumns: []*plugin.KeyColumn{
-				{Name: "type", Require: plugin.Optional},
+				{Name: "entity", Require: plugin.Required},
 			},
 		},
 		Columns: []*plugin.Column{
+			{Name: "entity", Type: proto.ColumnType_STRING, Description: "Entity type the audit log events belong to (e.g. users, apps, contracts). Required — must be provided as a WHERE filter."},
 			{Name: "performed_by", Type: proto.ColumnType_INT, Description: "User ID of the user who performed the action."},
 			{Name: "performed_by_first_name", Type: proto.ColumnType_STRING, Description: "First name of the user who performed the action."},
 			{Name: "performed_by_last_name", Type: proto.ColumnType_STRING, Description: "Last name of the user who performed the action."},
@@ -73,11 +75,9 @@ func listAuditLogs(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 	}
 
 	params := map[string]string{
-		"size": "1000",
-		"sort": "desc",
-	}
-	if v := d.EqualsQualString("type"); v != "" {
-		params["entity"] = v
+		"size":   "1000",
+		"sort":   "desc",
+		"entity": d.EqualsQualString("entity"),
 	}
 
 	cursor := ""
@@ -92,6 +92,7 @@ func listAuditLogs(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 		}
 
 		for _, a := range result.Audit {
+			a.Entity = d.EqualsQualString("entity")
 			d.StreamListItem(ctx, a)
 			if d.RowsRemaining(ctx) == 0 {
 				return nil, nil

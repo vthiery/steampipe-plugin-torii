@@ -55,7 +55,7 @@ run_test "torii_app_user"       "select app_id, id_user, email, status from tori
 run_test "torii_contract"       "select id, name, status from torii_contract limit 1"
 run_test "torii_contract_field" "select id, name, system_key, type from torii_contract_field limit 1"
 run_test "torii_role"           "select id, name, is_admin from torii_role limit 1"
-run_test "torii_audit_log"      "select performed_by_email, type, creation_time from torii_audit_log limit 1"
+run_test "torii_audit_log"      "select performed_by_email, type, creation_time from torii_audit_log where entity = 'users' limit 1"
 run_test "torii_user_app"       "select user_id, id, name, state from torii_user_app where user_id = ${USER_ID} limit 1"
 run_test "torii_user_field"     "select id, name, key, type from torii_user_field limit 1"
 run_test "torii_organization"   "select id, company_name, domain from torii_organization"
