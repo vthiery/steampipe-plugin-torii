@@ -1,3 +1,19 @@
+## v0.0.3 [2026-03-13]
+
+_Bug fixes_
+
+- `torii_audit_log`: fixed the `entity` key column — it was incorrectly mapped to `type`, is now required (matching the Torii API requirement), and is populated on each returned row.
+
+_Dependencies_
+
+- Bumped `github.com/hashicorp/go-getter` from 1.7.5 to 1.7.9
+- Bumped `github.com/ulikunitz/xz` from 0.5.10 to 0.5.14
+- Bumped `github.com/golang/glog` from 1.2.0 to 1.2.4
+- Bumped `go.opentelemetry.io/otel/sdk` from 1.26.0 to 1.40.0
+- Bumped `golang.org/x/crypto` from 0.21.0 to 0.45.0
+- Bumped `golang.org/x/net` from 0.23.0 to 0.38.0
+- Bumped `golang.org/x/oauth2` from 0.17.0 to 0.27.0
+
 ## v0.0.2 [2026-03-09]
 
 _What's new?_
