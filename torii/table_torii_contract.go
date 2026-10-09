@@ -2,6 +2,7 @@ package torii
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
@@ -11,13 +12,40 @@ import (
 
 //// TYPES
 
+// flexString decodes a JSON value that the Torii API sends as either a string
+// or a number into a string. Torii returns contract owners as a numeric user id
+// on some tenants and as a name on others, and switched mid-life on at least
+// one; a plain `string` field makes the whole listing fail to unmarshal.
+type flexString string
+
+func (f *flexString) UnmarshalJSON(b []byte) error {
+	if string(b) == "null" {
+		*f = ""
+		return nil
+	}
+	if b[0] == '"' {
+		var s string
+		if err := json.Unmarshal(b, &s); err != nil {
+			return err
+		}
+		*f = flexString(s)
+		return nil
+	}
+	var n json.Number
+	if err := json.Unmarshal(b, &n); err != nil {
+		return fmt.Errorf("expected string or number, got %s", b)
+	}
+	*f = flexString(n.String())
+	return nil
+}
+
 // Contract represents a Torii contract.
 type Contract struct {
-	ID     int    `json:"id"`
-	IDApp  int    `json:"idApp"`
-	Name   string `json:"name"`
-	Owner  string `json:"owner"`
-	Status string `json:"status"`
+	ID     int        `json:"id"`
+	IDApp  int        `json:"idApp"`
+	Name   string     `json:"name"`
+	Owner  flexString `json:"owner"`
+	Status string     `json:"status"`
 }
 
 // contractsResponse is the envelope returned by GET /v1.0/contracts.
@@ -48,7 +76,7 @@ func tableToriiContract() *plugin.Table {
 			{Name: "id", Type: proto.ColumnType_INT, Description: "Unique contract identifier."},
 			{Name: "id_app", Type: proto.ColumnType_INT, Transform: transform.FromField("IDApp"), Description: "Unique identifier of the application this contract belongs to."},
 			{Name: "name", Type: proto.ColumnType_STRING, Description: "Name of the contract."},
-			{Name: "owner", Type: proto.ColumnType_STRING, Description: "Name of the contract owner."},
+			{Name: "owner", Type: proto.ColumnType_STRING, Description: "Contract owner — a user id or a name, depending on the tenant."},
 			{Name: "status", Type: proto.ColumnType_STRING, Description: "Status of the contract (e.g. active, expired)."},
 		},
 	}

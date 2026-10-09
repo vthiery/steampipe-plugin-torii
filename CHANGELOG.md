@@ -1,3 +1,9 @@
+## v0.0.4 [2026-10-09]
+
+_Bug fixes_
+
+- `torii_contract`: the `owner` field now decodes whether the Torii API sends it as a numeric user id or as a string. It was typed as a string, so tenants returning a numeric owner failed the whole listing with `json: cannot unmarshal number into Go struct field Contract.contracts.owner of type string`.
+
 ## v0.0.3 [2026-03-13]
 
 _Bug fixes_
